@@ -1,0 +1,13 @@
+{
+  "name": "",
+  "version": "",
+  "description": "About =====",
+  "scripts": {
+    "start": "node signaling-server"
+  },
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "express": "^4.16.4",
+    "socket.io": "^1.7.4"
+  }
+}
