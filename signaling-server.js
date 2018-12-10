@@ -34,7 +34,7 @@ io.sockets.on('connection', function (socket) {
 	socket.on('save', function (config){
 		const fs = require('fs');
 		
-		fs.writeFile('sdp.txt', config.session_description, (err) =>{
+		fs.writeFile('sdp.txt', config.session_description.sdp, (err) =>{
 			if (err) throw err;
 			
 			console.log("sdp saved");
@@ -102,5 +102,22 @@ io.sockets.on('connection', function (socket) {
         if (peer_id in sockets) {
             sockets[peer_id].emit('offer', {'peer_id': socket.id, 'session_description': session_description});
         }
+    });
+	
+	socket.on('ready_local', function(config) {
+        var peer_id = config.peer_id;
+		var fs = require('fs');
+		var contents = "";
+		
+		fs.readFile('sdp.txt', 'utf8', function(err, contents) {
+			console.log("---");
+			console.log(contents);
+		});
+		
+        console.log("["+ socket.id + "] relaying session description to [" + peer_id + "] ", contents);
+		
+
+        sockets[peer_id].emit('offer', {'peer_id': socket.id, 'session_description': contents});
+       
     });
 });
