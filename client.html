@@ -114,7 +114,7 @@
                                         signaling_socket.emit('ready', 
                                             {'peer_id': peer_id, 'session_description': local_description});
                                         signaling_socket.emit('save',
-                                            {'session_description':  peer_connection})
+                                            {'session_description':  local_description})
                                         console.log("Offer setLocalDescription succeeded"); 
                                     },
                                     function() { Alert("Offer setLocalDescription failed!"); }
@@ -230,3 +230,4 @@
     <body onload='init()'>
     </body>
 </html>
+
