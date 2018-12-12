@@ -2,6 +2,7 @@ var PORT = 8080;
 
 var express = require('express');
 var http = require('http');
+var transform = require('sdp-transform');
 var bodyParser = require('body-parser')
 var main = express()
 var server = http.createServer(main)
@@ -64,6 +65,25 @@ io.sockets.on('connection', function (socket) {
         socket.channels[channel] = channel;
     });
 
+    socket.on('local_create_join', function (config) {
+        console.log("["+ socket.id + "] join ", config);
+        var channel = config.channel;
+        var userdata = config.userdata;
+
+        if (channel in socket.channels) {
+            console.log("["+ socket.id + "] ERROR: already joined ", channel);
+            return;
+        }
+
+        if (!(channel in channels)) {
+            channels[channel] = {};
+        }
+        
+        sockets[socket.id].emit('local_joined', {'peer_id': socket.id, 'offer': false});
+
+        channels[channel][socket.id] = socket;
+        socket.channels[channel] = channel;
+    });
     function part(channel) {
         console.log("["+ socket.id + "] part ");
 
@@ -85,6 +105,8 @@ io.sockets.on('connection', function (socket) {
     socket.on('relayICECandidate', function(config) {
         var peer_id = config.peer_id;
         var ice_candidate = config.ice_candidate;
+        console.log(config.ice_candidate.sdpMid)
+        console.log("\n\n\n\n\n*SHUT UP YOUR MOUTH DIRTY BITCH*\n\n\n\n\n");
         console.log("["+ socket.id + "] relaying ICE candidate to [" + peer_id + "] ", ice_candidate);
 
         if (peer_id in sockets) {
@@ -103,21 +125,40 @@ io.sockets.on('connection', function (socket) {
             sockets[peer_id].emit('offer', {'peer_id': socket.id, 'session_description': session_description});
         }
     });
+    socket.on('answer', function(config) {
+        var peer_id = config.peer_id;
+        config.sdp.type = "offer"
+        var session_description = config.sdp;
+        var fs = require('fs');
+        
+        console.log("["+ socket.id + "] relaying session description to [" + peer_id + "] ", session_description);
+        io.emit('ans', {'peer_id': socket.id, 'session_description': session_description});
+        /*if (peer_id in sockets) {
+            sockets[peer_id].emit('ans', {'peer_id': socket.id, 'session_description': session_description});
+        }*/
+    });
 	
 	socket.on('ready_local', function(config) {
         var peer_id = config.peer_id;
 		var fs = require('fs');
 		var contents = "";
 		
+		
 		fs.readFile('sdp.txt', 'utf8', function(err, contents) {
 			console.log("---");
-			console.log(contents);
+			//console.log(contents);
+            console.log("["+ socket.id + "] relaying session description to [" + peer_id + "] ", transform.parse(contents));
+            io.emit('offer', {'peer_id': socket.id, 'sdp': contents});
 		});
 		
-        console.log("["+ socket.id + "] relaying session description to [" + peer_id + "] ", contents);
+		
+		
+		
+        //console.log("["+ socket.id + "] relaying session description to [" + peer_id + "] ", contents);
 		
 
-        sockets[peer_id].emit('offer', {'peer_id': socket.id, 'session_description': contents});
-       
+        //io.emit('offer', {'peer_id': socket.id, 'sdp': contents});
+       //io.emit('offer', 'qwerty');
+       //socket.broadcast.send('qwerty');
     });
 });
