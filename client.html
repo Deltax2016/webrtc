@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
     <head>
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+       <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
         <style>
             html, body { 
                 background-color: #333; 
@@ -18,7 +18,7 @@
             var SIGNALING_SERVER = "0.0.0.0";
             var USE_AUDIO = true;
             var USE_VIDEO = true;
-            var DEFAULT_CHANNEL = 'some-global-channel-name';
+            var DEFAULT_CHANNEL = 'expload';
             var MUTE_AUDIO_BY_DEFAULT = false;
             var ICE_SERVERS = [
                 {url:"stun:stun.l.google.com:19302"}
@@ -72,8 +72,7 @@
                         return;
                     }
                     var peer_connection = new RTCPeerConnection(
-                        {"iceServers": ICE_SERVERS},
-                        {"optional": [{"DtlsSrtpKeyAgreement": true}]}
+                        {"iceServers": ICE_SERVERS}
                     );
                     peers[peer_id] = peer_connection;
 
@@ -82,6 +81,7 @@
                             signaling_socket.emit('relayICECandidate', {
                                 'peer_id': peer_id, 
                                 'ice_candidate': {
+                                    'sdpMid': event.candidate.sdpMid,
                                     'sdpMLineIndex': event.candidate.sdpMLineIndex,
                                     'candidate': event.candidate.candidate
                                 }
@@ -139,13 +139,14 @@
                             console.log("setRemoteDescription succeeded");
                             if (remote_description.type == "offer") {
                                 console.log("Creating answer");
-                                peer.createAnswer(
+                                /*peer.createAnswer(
                                     function(local_description) {
                                         console.log("Answer description is: ", local_description);
                                         peer.setLocalDescription(local_description,
                                             function() { 
                                                 signaling_socket.emit('ready', 
                                                     {'peer_id': peer_id, 'session_description': local_description});
+                                                signaling_socket.emit('save',{'session_description':local_description});
                                                 console.log("Answer setLocalDescription succeeded");
                                             },
                                             function() { Alert("Answer setLocalDescription failed!"); }
@@ -154,8 +155,7 @@
                                     function(error) {
                                         console.log("Error creating answer: ", error);
                                         console.log(peer);
-                                    });
-                            }
+                                    }); */                            }
                         },
                         function(error) {
                             console.log("setRemoteDescription error: ", error);
@@ -165,7 +165,44 @@
 
                 });
 
+                signaling_socket.on('ans', function(config) {
+                    console.log('Remote description answer received: ', config);
+                    var peer_id = config.peer_id;
+                    var peer = peers[peer_id];
+                    var remote_description = config.session_description;
+                    console.log(config.session_description);
+                    
+                    var desc = new RTCSessionDescription(remote_description);
+                    var stuff = peer.setRemoteDescription(desc, 
+                        function() {
+                            console.log("setRemoteDescription succeeded");
+                            if (remote_description.type == "offer") {
+                                console.log("Creating answer");
+                                /*peer.createAnswer(
+                                    function(local_description) {
+                                        console.log("Answer description is: ", local_description);
+                                        peer.setLocalDescription(local_description,
+                                            function() { 
+                                                signaling_socket.emit('ready', 
+                                                    {'peer_id': peer_id, 'session_description': local_description});
+                                                signaling_socket.emit('save',{'session_description':local_description});
+                                                console.log("Answer setLocalDescription succeeded");
+                                            },
+                                            function() { Alert("Answer setLocalDescription failed!"); }
+                                        );
+                                    },
+                                    function(error) {
+                                        console.log("Error creating answer: ", error);
+                                        console.log(peer);
+                                    }); */                            }
+                        },
+                        function(error) {
+                            console.log("setRemoteDescription error: ", error);
+                        }
+                    );
+                    console.log("Description Object: ", desc);
 
+                });
                 signaling_socket.on('iceCandidate', function(config) {
                     var peer = peers[config.peer_id];
                     var ice_candidate = config.ice_candidate;
@@ -230,4 +267,3 @@
     <body onload='init()'>
     </body>
 </html>
-
