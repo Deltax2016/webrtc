@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Stream Theater</title>
+    <script src="../js/thirdparty/zepto.min.js"></script>
+    <script src="../js/utility/ui.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="css/stream_me_stage.css">
+    <link href="https://fonts.googleapis.com/css?family=Exo+2:300,400,500,700" rel="stylesheet">
+    
+    <script src="js/stream_me_stage.js"></script>
+    <script src="js/stream_layout.js"></script>
+    <script src="js/dragging_context.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/test_stream_source.js"></script>
+</head>
+<body>
+
+<div class="stream-stage" id="stream-stage">
+    <div class="stream-me-stage" id="stream-me-stage">
+        <div class="layout-control" id="layout-control">
+        </div>
+        <div class="layout-stage" id="layout-stage">
+            <div class="layout-layout" id="layout-layout">
+            </div>
+            <div class="layout-queue animable-queue" id="layout-queue">
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+
+var streamMeStage = null;
+var testStreamSource = null;
+var draggingContext = null;
+
+Zepto(function ($)
+{
+    testStreamSource = new TestStreamSource();
+    draggingContext = new DraggingContext();
+    streamMeStage = new StreamMeStage("#stream-stage", testStreamSource, draggingContext);
+    streamMeStage.StartStage(15);
+});
+
+</script>    
+</body>
+</html>

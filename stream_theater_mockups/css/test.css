@@ -1,0 +1,51 @@
+@import 'common.css';
+
+
+.container1 {
+    background-color: white;
+    display: flex;
+    width: 100%;
+    height: 100%;
+}
+
+.container2 {
+    background-color: darkslategray;
+    flex-grow: 2;
+}
+
+.container3 {
+    background-color: darkred;
+    flex-grow: 1;
+    overflow-x: hidden;
+    overflow-y: auto;
+    display: flex;
+    flex-wrap: nowrap;
+    flex-direction: column;
+}
+
+.item {
+    margin: 10px;
+    border-radius: 10px;
+    background-color: darkolivegreen;
+    height: 200px;
+    flex: 0 0 auto;
+}
+
+.sixteen-nine {
+    position: relative;
+}
+
+.sixteen-nine:before {
+    display: block;
+    content: "";
+    padding-top: 56.25%;
+}
+
+.sixteen-nine > .content {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background:gold; /** <-- For the demo **/
+}

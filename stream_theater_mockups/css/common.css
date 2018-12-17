@@ -1,0 +1,64 @@
+@import 'controls.css';
+
+:root {
+    --bg-primary: #2c2f37;
+    --bg-second: #292c33;
+
+    --bg-dark: #222429;
+    --bg-light: #444853;
+
+    --active-color-1: #2fbfd4;
+    --active-color-2: #6a7181;
+    --active-color-3: #589b79;
+    --negative-color: #d1405b;
+
+    --stop-color: #d64330;
+    --alert-color: rgba(255, 145, 0, 1);
+
+    --text-primary: #ffffff;
+    --text-dark: #737373;
+}
+
+body {
+    padding: 0;
+    margin: 0;
+    background:var(--bg-dark);
+    font-family: "Exo 2";
+    color: var(--text-primary);
+
+    user-select: none;
+}
+
+.shadow {
+    box-shadow: 0px 0px 3px 1px rgba(0,0,0,0.3);
+}
+
+.shadow-big {
+    box-shadow: 0px 0px 10px 5px rgba(0,0,0,0.6);
+}
+
+.animable
+{
+    transition: 0.2s ease-in-out;
+    transition-property: all;
+}
+
+.animable-fast
+{
+    transition: 0.1s ease-in-out;
+    transition-property: all;
+}
+
+
+.hide {
+    display: none;
+}
+
+.stream-stage {
+    position: absolute;
+    left: 5vw;
+    top: 5vh;
+    width: 90vw;
+    height: 90vh;
+}
+

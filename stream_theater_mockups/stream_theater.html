@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Stream Theater</title>
+    <script src="../js/thirdparty/zepto.min.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="css/stream_channels.css">
+    <link href="https://fonts.googleapis.com/css?family=Exo+2:300,400,500,700" rel="stylesheet">
+</head>
+<body>
+
+<div class='theater-channels'>
+    <ul>
+        <li class="item" id="item1">
+            <div class="channel-icon"></div>
+            <div class="channel-type"><img class="channel-game" src="img/header_pubg.png"></div>
+            <img class="channel-avatar" src="img/avt1.jpg"></img>
+            <div class="channel-name animable">Karina's PUBG Stage</div>
+        </li>
+        <li class="item" id="item2">
+            <div class="channel-icon"></div>
+            <div class="channel-type"><img class="channel-game" src="img/header_br.png" style="left:20%; top:15%; width:50%; height:50%"></div>
+            <img class="channel-avatar" src="img/avt2.jpg"></img>
+            <div class="channel-name animable">Megastreamer's Battle Royale Stage</div>
+        </li>
+        <li class="item" id="item3">
+            <div class="channel-icon"></div>
+            <div class="channel-type"><img class="channel-game" src="img/header_wf.png" style="left:12%; top:15%; width:70%; height:50%"></div>
+            <img class="channel-avatar" src="img/avt4.jpg"></img>
+            <div class="channel-name animable">Redjacks's Warface Stage</div>
+        </li>
+        <li class="item" id="item4">
+            <div class="channel-icon"></div>
+            <div class="channel-type"><img class="channel-game" src="img/header_wow.png"></div>
+            <img class="channel-avatar" src="img/avt3.jpg"></img>
+            <div class="channel-name animable">Sippul's World of Warcraft Stage</div>
+        </li>
+        <li class="item" id="item5">
+            <div class="channel-icon"></div>
+            <div class="channel-type">&nbsp;&nbsp;&nbsp;Stream Me!</div>
+            <img class="channel-avatar" src="img/avt1.jpg"></img>
+            <div class="channel-name animable">Karina's Stream Me Stage</div>
+        </li>
+    </ul>
+</div>
+
+<script type="text/javascript">
+
+Zepto(function ($)
+{
+    $('#item1').on('click', function() { location.href = "pubg_stage.html"; });
+    $('#item2').on('click', function() { location.href = "battle_royale_stage.html"; });
+    $('#item5').on('click', function() { location.href = "stream_me_stage.html"; });
+});
+
+</script>    
+</body>
+</html>

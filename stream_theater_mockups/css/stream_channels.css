@@ -1,0 +1,68 @@
+@import 'common.css';
+
+.theater-channels {
+    width: 100%;
+}
+
+.theater-channels ul {
+    display: flex;
+    flex-direction: column;
+    list-style: none;
+    margin: 0; padding: 0;
+    width: 100%;
+}
+
+.theater-channels ul li.item {
+    flex: 0 0 auto;
+    display: flex;
+    width: 100%;
+    height: 50px;
+    line-height: 50px;
+    color: #ffffff;
+    border-bottom: 3px solid rgba(0,0,0,0.1);
+    background: var(--bg-primary);
+    cursor: pointer;
+}
+
+.channel-icon {
+    background: url(../img/stage.svg) no-repeat;
+    background-position: center;
+    background-size: 80%;
+    height: 50px;
+    width: 50px;
+}
+
+.channel-type {
+    height: 50px;
+    width: 150px;
+    background: url(../img/theater_channel_bg.svg) no-repeat;
+    background-size: 100% 100%;
+
+    color: gold;
+    font-size: 22px;
+}
+
+.channel-game {
+    position: relative;
+    left: 10%;
+    top: 10%;
+    width: 80%;
+    height: 80%;
+}
+
+.channel-avatar {
+    height: 36px;
+    width: 36px;
+    margin: 7px;
+}
+
+.channel-name {
+    padding-left: 10px;
+    font-size: 13px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.theater-channels ul li.item:hover .channel-name {
+    color: gold;
+}

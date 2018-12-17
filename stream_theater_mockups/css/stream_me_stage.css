@@ -1,0 +1,224 @@
+@import 'common.css';
+
+:root
+{
+    --queue-width: 190px;
+    --queue-video-border-radius: 5px;
+    --queue-video-margin: 6px;
+    --queue-video-width: calc(var(--queue-width) - 2 * var(--queue-video-margin) - var(--scroll-width));
+    --queue-video-height: calc(var(--queue-video-width) * 9 / 16);
+    --queue-height: calc(var(--queue-video-height) + 2 * var(--queue-video-margin) + var(--scroll-width));
+}
+
+.stream-me-stage {
+    display: flex;
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.layout-control {
+    display: flex;
+    flex-direction: column;
+    width: 58px;
+    height: 100%;
+    background-color: var(--bg-primary);
+    z-index: 101;
+}
+
+.layout-control .delimiter {
+    width: 44px;
+    height: 0px;
+    margin: 5px;
+    background-color: var(--bg-light);
+    box-shadow: 0px 0px 1px 1px rgba(0, 0, 0, 0.5);
+}
+
+.layout-control .control {
+    display: flex;
+    flex-direction: column;
+    width: 48px;
+    height: 48px;
+    margin: 2px;
+    background-color: var(--bg-dark);
+    padding: 1px;
+}
+
+.layout-control .control .black {
+    display: flex;
+    background-color: transparent;
+    flex-grow: 1;
+}
+
+.layout-control .control .white {
+    display: flex;
+    background-color: white;
+    flex-grow: 1;
+    padding: 1px;
+    background-clip: content-box;
+}
+
+.layout-control .control:hover .white,
+.layout-control .control.selected .white {
+    background-color: var(--alert-color);
+}
+
+
+
+.layout-control .control .queue-left {
+    background-color: white;
+    flex-grow: 1;
+    border-left: 5px solid var(--active-color-3);
+}
+
+.layout-control .control .queue-right {
+    background-color: white;
+    flex-grow: 1;
+    border-right: 5px solid var(--active-color-3);
+}
+
+.layout-control .control .queue-top {
+    background-color: white;
+    flex-grow: 1;
+    border-top: 5px solid var(--active-color-3);
+}
+
+.layout-control .control .queue-bottom {
+    background-color: white;
+    flex-grow: 1;
+    border-bottom: 5px solid var(--active-color-3);
+}
+
+
+.layout-control .control:hover .queue-left,
+.layout-control .control:hover .queue-right,
+.layout-control .control:hover .queue-top,
+.layout-control .control:hover .queue-bottom, 
+.layout-control .control.selected .queue-left,
+.layout-control .control.selected .queue-right,
+.layout-control .control.selected .queue-top,
+.layout-control .control.selected .queue-bottom 
+{
+    border-color: var(--alert-color);
+}
+
+.layout-stage {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    height: 100%;
+    background-color: var(--bg-primary);
+}
+
+.layout-layout {
+    background-color: black;
+    position: relative;
+    flex-grow: 5;
+}
+
+.animable-queue
+{
+    transition: 0.05s ease-in-out;
+    transition-property: width;
+}
+
+.layout-queue {
+    display: flex;
+    flex-direction: column;
+    overflow-x: auto;
+    overflow-y: auto;
+    background-color: var(--bg-primary);
+    width: var(--queue-width);
+    height: 100%;
+    z-index: 100;
+}
+
+.layout-queue .video-container {
+    flex: 0 0 auto;
+    border-radius: var(--queue-video-border-radius);
+    box-shadow: 0px 0px 3px 1px rgba(0,0,0,0.5);
+    overflow: hidden;
+    position: relative;
+    width: var(--queue-video-width);
+    height: var(--queue-video-height);
+    margin: var(--queue-video-margin) var(--queue-video-margin) 0px var(--queue-video-margin);
+}
+
+.layout-layout .video-container {
+    /* border-radius: var(--queue-video-border-radius);
+    box-shadow: 0px 0px 3px 1px rgba(0,0,0,0.5); 
+    overflow: hidden; */
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    width: 100px;
+    height: 100px;
+}
+
+.layout-layout .horz-ruler {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: var(--queue-video-margin);
+    background-color: var(--bg-primary);
+    cursor:ns-resize;
+}
+
+.layout-layout .vert-ruler {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    height: 100%;
+    width: var(--queue-video-margin);
+    background-color: var(--bg-primary);
+    cursor:ew-resize;
+}
+
+.video-player {
+    position: absolute;
+    width: 100%;
+    height: 100%;     
+}
+
+.video-player .video-content {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;     
+}
+
+.video-player .info {
+    display: flex;
+    justify-content: space-between;
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    width: 100%;
+    font-size: 13px;
+    font-weight: bold;
+    color: white;
+    background:rgba(0, 0, 0, 0.7);
+}
+
+.video-player .info .time {
+    padding-left: 5px;
+}
+
+.video-player .info .nick {
+    padding-right: 5px;
+}
+
+.video-player .cover {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg,rgba(255,255,255,.35) 0%,rgba(255,255,255,0) 60%);
+    border-radius: var(--queue-video-border-radius);
+    box-sizing: border-box;
+}
+
+.video-player:hover .cover {
+    background: linear-gradient(135deg,rgba(255, 145, 0,.65) 0%,rgba(255, 145, 0, 0) 60%);
+}
