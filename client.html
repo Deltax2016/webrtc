@@ -139,7 +139,7 @@
                             console.log("setRemoteDescription succeeded");
                             if (remote_description.type == "offer") {
                                 console.log("Creating answer");
-                                /*peer.createAnswer(
+                                peer.createAnswer(
                                     function(local_description) {
                                         console.log("Answer description is: ", local_description);
                                         peer.setLocalDescription(local_description,
@@ -155,7 +155,7 @@
                                     function(error) {
                                         console.log("Error creating answer: ", error);
                                         console.log(peer);
-                                    }); */                            }
+                                    });                          }
                         },
                         function(error) {
                             console.log("setRemoteDescription error: ", error);
@@ -178,7 +178,7 @@
                             console.log("setRemoteDescription succeeded");
                             if (remote_description.type == "offer") {
                                 console.log("Creating answer");
-                                /*peer.createAnswer(
+                                peer.createAnswer(
                                     function(local_description) {
                                         console.log("Answer description is: ", local_description);
                                         peer.setLocalDescription(local_description,
@@ -194,7 +194,7 @@
                                     function(error) {
                                         console.log("Error creating answer: ", error);
                                         console.log(peer);
-                                    }); */                            }
+                                    });                            }
                         },
                         function(error) {
                             console.log("setRemoteDescription error: ", error);

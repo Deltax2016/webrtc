@@ -1,11 +1,20 @@
 var PORT = 8080;
+var fs = require('fs');
+var privateKey  = fs.readFileSync('server.key', 'utf8');
+var certificate = fs.readFileSync('server.cert', 'utf8');
 
+var credentials = {key: privateKey, cert: certificate};
 var express = require('express');
+var app = express();
+
+// your express configuration here
+
+var https = require('https');
 var http = require('http');
 var transform = require('sdp-transform');
 var bodyParser = require('body-parser')
 var main = express()
-var server = http.createServer(main)
+var server = https.createServer(credentials,main)
 var io  = require('socket.io').listen(server);
 
 server.listen(PORT, null, function() {
