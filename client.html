@@ -15,18 +15,19 @@
 
         <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
         <script>
-            var SIGNALING_SERVER = "0.0.0.0";
+            var SIGNALING_SERVER = "84.201.175.79:8080";
             var USE_AUDIO = true;
             var USE_VIDEO = true;
             var DEFAULT_CHANNEL = 'expload';
             var MUTE_AUDIO_BY_DEFAULT = false;
             var ICE_SERVERS = [
-                {url:"stun:stun.l.google.com:19302"}
+                {urls:"stun:stun.l.google.com:19302"}
             ];
         </script>
 
 
         <script>
+            var remote_media;
             var signaling_socket = null;
             var local_media_stream = null;
             var peers = {};
@@ -90,19 +91,26 @@
                     }
                     peer_connection.onaddstream = function(event) {
                         console.log("onAddStream", event);
-                        var remote_media = USE_VIDEO ? $("<video>") : $("<audio>");
+                        remote_media = USE_VIDEO ? $("<video>") : $("<audio>");
                         remote_media.attr("autoplay", "autoplay");
                         if (MUTE_AUDIO_BY_DEFAULT) {
                             remote_media.attr("muted", "true");
+                            remote_media.attr();
                         }
                         remote_media.attr("controls", "");
                         peer_media_elements[peer_id] = remote_media;
+                        if ($('body')[1] == undefined) {
                         $('body').append(remote_media);
+                        }
+                        else 
+                        {
+                            $('body')[1] = remote_media;
+                        }
                         attachMediaStream(remote_media[0], event.stream);
                     }
 
-
-                    peer_connection.addStream(local_media_stream);
+                    local_media_stream.getTracks().forEach(track => peer_connection.addTrack(track, local_media_stream));
+                    //peer_connection.addStream(local_media_stream);
 
                     if (config.offer) {
                         console.log("Creating RTC offer to ", peer_id);
@@ -233,8 +241,8 @@
                 console.log("Requesting access to local audio / video inputs");
 
 
-                navigator.getUserMedia = ( navigator.getUserMedia ||
-                       navigator.webkitGetUserMedia ||
+                navigator.mediaDevices.getUserMedia = ( navigator.mediaDevices.getUserMedia ||
+                       navigator.mediaDevices.webkitGetUserMedia ||
                        navigator.mozGetUserMedia ||
                        navigator.msGetUserMedia);
 
@@ -243,20 +251,21 @@
                     element.srcObject = stream;
                  };
 
-                navigator.getUserMedia({"audio":USE_AUDIO, "video":USE_VIDEO},
-                    function(stream) {
+                navigator.mediaDevices.getUserMedia({"audio":USE_AUDIO, "video":USE_VIDEO})
+                    .then(function(stream) {
                         console.log("Access granted to audio/video");
                         local_media_stream = stream;
                         var local_media = USE_VIDEO ? $("<video>") : $("<audio>");
                         local_media.attr("autoplay", "autoplay");
-                        local_media.prop('muted', true);
+                        local_media.attr("playsinline","");
+                        local_media.prop('muted', false);
                         local_media.attr("controls", "");
                         $('body').append(local_media);
                         attachMediaStream(local_media[0], stream);
 
                         if (callback) callback();
-                    },
-                    function() {
+                    })
+                    .catch(function() {
                         console.log("Access denied for audio/video");
                         alert("You chose not to provide access to the camera/microphone, demo will not work.");
                         if (errorback) errorback();

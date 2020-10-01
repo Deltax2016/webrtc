@@ -142,9 +142,9 @@ io.sockets.on('connection', function (socket) {
         
         console.log("["+ socket.id + "] relaying session description to [" + peer_id + "] ", session_description);
         io.emit('ans', {'peer_id': socket.id, 'session_description': session_description});
-        /*if (peer_id in sockets) {
+        if (peer_id in sockets) {
             sockets[peer_id].emit('ans', {'peer_id': socket.id, 'session_description': session_description});
-        }*/
+        }
     });
 	
 	socket.on('ready_local', function(config) {
