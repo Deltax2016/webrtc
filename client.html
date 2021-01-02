@@ -5,17 +5,30 @@
         <style>
             html, body { 
                 background-color: #333; 
+                background-image: url(https://imgur.com/n2FpuGO.png); 
             }
-            video {
+            .my {
                 width:  320px;
                 height:  240px;
                 border:  1px solid black;
+                bottom: 10px;
+                right: : 10px;
+                position: absolute;
+                z-index: 30000;
+                display: none;
             }
+            .full {
+                position: fixed; left: 0; top: 0;
+                min-height: 90%;
+                margin: auto;
+                width: auto; height: auto; z-index: -100;
+                background-size: cover;
+                }
         </style>
 
-        <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.4/socket.io.js"></script>
         <script>
-            var SIGNALING_SERVER = "84.201.175.79:8080";
+            var SIGNALING_SERVER = "https://haclever.moscow/";
             var USE_AUDIO = true;
             var USE_VIDEO = true;
             var DEFAULT_CHANNEL = 'expload';
@@ -24,19 +37,25 @@
                 {urls:"stun:stun.l.google.com:19302"}
             ];
         </script>
+        <style type="text/css">
+            
+        </style>
 
 
         <script>
+            
             var remote_media;
+            var local_media;
             var signaling_socket = null;
             var local_media_stream = null;
             var peers = {};
             var peer_media_elements = {};
+            var audio = new Audio('/audio');d
 
             function init() {
                 console.log("Connecting to signaling server");
-                signaling_socket = io(SIGNALING_SERVER);
-                signaling_socket = io();
+                signaling_socket = io(SIGNALING_SERVER,{transports: ['websocket']});
+                signaling_socket = io(SIGNALING_SERVER,{transports: ['websocket']});
 
                 signaling_socket.on('connect', function() {
                     console.log("Connected to signaling server");
@@ -45,7 +64,7 @@
                     });
                 });
                 signaling_socket.on('quit', function() {
-                    console.log("Disconnected from signaling server");
+                    //logs("Disconnected from signaling server");
 
                     for (peer_id in peer_media_elements) {
                         peer_media_elements[peer_id].remove();
@@ -64,8 +83,16 @@
                     signaling_socket.emit('part', channel);
                 }
 
+                $(function() {
+				    $(window).click(function() {
+				        console.log(2);
+				        audio.play();
+				        signaling_socket.emit('call',{'place':'1'});
+				    });
+				});
+
                 signaling_socket.on('joined', function(config) {
-                    console.log('Signaling server said to add peer:', config);
+                    //logs('Signaling server said to add peer:');
                     var peer_id = config.peer_id;
                     if (peer_id in peers) {
  
@@ -75,10 +102,13 @@
                     var peer_connection = new RTCPeerConnection(
                         {"iceServers": ICE_SERVERS}
                     );
+                    console.log(peer_connection);
                     peers[peer_id] = peer_connection;
 
                     peer_connection.onicecandidate = function(event) {
                         if (event.candidate) {
+                            console.log('onicecandidate');
+                            //logs('onicecandidate');
                             signaling_socket.emit('relayICECandidate', {
                                 'peer_id': peer_id, 
                                 'ice_candidate': {
@@ -89,8 +119,10 @@
                             });
                         }
                     }
-                    peer_connection.onaddstream = function(event) {
-                        console.log("onAddStream", event);
+                    peer_connection.ontrack = function(event) {
+                        console.log("ontrack", event);
+                        //logs('ontrack');
+
                         remote_media = USE_VIDEO ? $("<video>") : $("<audio>");
                         remote_media.attr("autoplay", "autoplay");
                         if (MUTE_AUDIO_BY_DEFAULT) {
@@ -98,6 +130,8 @@
                             remote_media.attr();
                         }
                         remote_media.attr("controls", "");
+                        remote_media.attr("id", "remote");
+                        remote_media.addClass('full');
                         peer_media_elements[peer_id] = remote_media;
                         if ($('body')[1] == undefined) {
                         $('body').append(remote_media);
@@ -106,7 +140,9 @@
                         {
                             $('body')[1] = remote_media;
                         }
-                        attachMediaStream(remote_media[0], event.stream);
+                        var videoElement = document.getElementById('remote'); 
+                        videoElement.requestFullscreen();
+                        attachMediaStream(remote_media[0], event.streams[0]);
                     }
 
                     local_media_stream.getTracks().forEach(track => peer_connection.addTrack(track, local_media_stream));
@@ -114,21 +150,21 @@
 
                     if (config.offer) {
                         console.log("Creating RTC offer to ", peer_id);
-                        peer_connection.createOffer(
-                            function (local_description) { 
+                        peer_connection.createOffer()
+                            .then(function (local_description) { 
                                 console.log("Local offer description is: ", local_description);
-                                peer_connection.setLocalDescription(local_description,
-                                    function() { 
+                                peer_connection.setLocalDescription(local_description)
+                                    .then(function() { 
                                         signaling_socket.emit('ready', 
                                             {'peer_id': peer_id, 'session_description': local_description});
                                         signaling_socket.emit('save',
                                             {'session_description':  local_description})
-                                        console.log("Offer setLocalDescription succeeded"); 
-                                    },
-                                    function() { Alert("Offer setLocalDescription failed!"); }
+                                        //logs("Offer setLocalDescription succeeded"); 
+                                    })
+                                    .catch(function() { Alert("Offer setLocalDescription failed!"); }
                                 );
-                            },
-                            function (error) {
+                            })
+                            .catch(function (error) {
                                 console.log("Error sending offer: ", error);
                             });
                     }
@@ -142,34 +178,33 @@
                     console.log(config.session_description);
 
                     var desc = new RTCSessionDescription(remote_description);
-                    var stuff = peer.setRemoteDescription(desc, 
-                        function() {
+                    var stuff = peer.setRemoteDescription(desc) 
+                        .then(function() {
                             console.log("setRemoteDescription succeeded");
                             if (remote_description.type == "offer") {
-                                console.log("Creating answer");
-                                peer.createAnswer(
-                                    function(local_description) {
+                                //logs("Creating answer");
+                                peer.createAnswer()
+                                    .then(function(local_description) {
                                         console.log("Answer description is: ", local_description);
-                                        peer.setLocalDescription(local_description,
-                                            function() { 
+                                        peer.setLocalDescription(local_description)
+                                            .then(function() { 
                                                 signaling_socket.emit('ready', 
                                                     {'peer_id': peer_id, 'session_description': local_description});
                                                 signaling_socket.emit('save',{'session_description':local_description});
-                                                console.log("Answer setLocalDescription succeeded");
-                                            },
-                                            function() { Alert("Answer setLocalDescription failed!"); }
+                                                //logs("Answer setLocalDescription succeeded");
+                                            })
+                                            .catch(function() { Alert("Answer setLocalDescription failed!"); }
                                         );
-                                    },
-                                    function(error) {
+                                    })
+                                    .catch(function(error) {
                                         console.log("Error creating answer: ", error);
                                         console.log(peer);
                                     });                          }
-                        },
-                        function(error) {
+                        })
+                        .catch(function(error) {
                             console.log("setRemoteDescription error: ", error);
-                        }
-                    );
-                    console.log("Description Object: ", desc);
+                        });
+                    console.log("Description Object: ", desc, stuff);
 
                 });
 
@@ -181,30 +216,30 @@
                     console.log(config.session_description);
                     
                     var desc = new RTCSessionDescription(remote_description);
-                    var stuff = peer.setRemoteDescription(desc, 
-                        function() {
-                            console.log("setRemoteDescription succeeded");
+                    var stuff = peer.setRemoteDescription(desc) 
+                        .then(function() {
+                            //logs("setRemoteDescription succeeded");
                             if (remote_description.type == "offer") {
-                                console.log("Creating answer");
-                                peer.createAnswer(
-                                    function(local_description) {
+                                //logs("Creating answer");
+                                peer.createAnswer()
+                                    .then(function(local_description) {
                                         console.log("Answer description is: ", local_description);
-                                        peer.setLocalDescription(local_description,
-                                            function() { 
+                                        peer.setLocalDescription(local_description)
+                                            .then(function() { 
                                                 signaling_socket.emit('ready', 
                                                     {'peer_id': peer_id, 'session_description': local_description});
                                                 signaling_socket.emit('save',{'session_description':local_description});
-                                                console.log("Answer setLocalDescription succeeded");
-                                            },
-                                            function() { Alert("Answer setLocalDescription failed!"); }
+                                                //logs("Answer setLocalDescription succeeded");
+                                            })
+                                            .catch(function() { Alert("Answer setLocalDescription failed!"); }
                                         );
-                                    },
-                                    function(error) {
+                                    })
+                                    .catch(function(error) {
                                         console.log("Error creating answer: ", error);
                                         console.log(peer);
                                     });                            }
-                        },
-                        function(error) {
+                        })
+                        .catch(function(error) {
                             console.log("setRemoteDescription error: ", error);
                         }
                     );
@@ -216,7 +251,9 @@
                     var ice_candidate = config.ice_candidate;
                     peer.addIceCandidate(new RTCIceCandidate(ice_candidate));
                 });
-
+                signaling_socket.on('close', function(config) {
+                    location.reload();
+                });
 
                 signaling_socket.on('removePeer', function(config) {
                     console.log('Signaling server said to remove peer:', config);
@@ -255,14 +292,15 @@
                     .then(function(stream) {
                         console.log("Access granted to audio/video");
                         local_media_stream = stream;
-                        var local_media = USE_VIDEO ? $("<video>") : $("<audio>");
+                        local_media = USE_VIDEO ? $("<video>") : $("<audio>");
                         local_media.attr("autoplay", "autoplay");
                         local_media.attr("playsinline","");
-                        local_media.prop('muted', false);
+                        local_media.prop('muted', true);
                         local_media.attr("controls", "");
+                        local_media.addClass('my');
                         $('body').append(local_media);
                         attachMediaStream(local_media[0], stream);
-
+                        console.log("Настя солнышко  ❤")
                         if (callback) callback();
                     })
                     .catch(function() {
@@ -270,6 +308,12 @@
                         alert("You chose not to provide access to the camera/microphone, demo will not work.");
                         if (errorback) errorback();
                     });
+            }
+            function logs(text){
+                elem = $('<p>');
+                elem.text(text);
+                elem.css('color', 'white');
+                $('body').append(elem);
             }
         </script>
     </head>

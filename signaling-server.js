@@ -1,9 +1,9 @@
 var PORT = 8080;
 var fs = require('fs');
-var privateKey  = fs.readFileSync('server.key', 'utf8');
+/*var privateKey  = fs.readFileSync('server.key', 'utf8');
 var certificate = fs.readFileSync('server.cert', 'utf8');
 
-var credentials = {key: privateKey, cert: certificate};
+var credentials = {key: privateKey, cert: certificate};*/
 var express = require('express');
 var app = express();
 
@@ -12,16 +12,24 @@ var app = express();
 var https = require('https');
 var http = require('http');
 var transform = require('sdp-transform');
-var bodyParser = require('body-parser')
-var main = express()
-var server = https.createServer(credentials,main)
+var bodyParser = require('body-parser');
+var main = express();
+var server = http.createServer(main);
+var wss = https.createServer(main);
 var io  = require('socket.io').listen(server);
 
 server.listen(PORT, null, function() {
     console.log("Listening on port " + PORT);
 });
 
-main.get('/', function(req, res){ res.sendFile(__dirname + '/client.html'); });
+main.get('/client', function(req, res){ res.sendFile(__dirname + '/client.html'); });
+main.get('/', function(req, res){ res.sendFile(__dirname + '/uses.html'); });
+main.get('/audio', function(req, res){ res.sendFile(__dirname + '/1313.mp3'); });
+main.get('/close', function(req, res)
+    {
+        io.emit('close'); 
+        res.send('ok'); 
+});
 
 var channels = {};
 var sockets = {};
@@ -40,7 +48,17 @@ io.sockets.on('connection', function (socket) {
         console.log("["+ socket.id + "] disconnected");
         delete sockets[socket.id];
     });
-	
+
+    socket.on('call', function () {
+        console.log("active call");
+        https.get('https://d7245a244c5e.ngrok.io/send');
+    });
+	socket.on('close', function () {
+        console.log("clooooooooooooooooooose");
+            io.emit('close');
+    });
+
+
 	socket.on('save', function (config){
 		const fs = require('fs');
 		
@@ -115,7 +133,7 @@ io.sockets.on('connection', function (socket) {
         var peer_id = config.peer_id;
         var ice_candidate = config.ice_candidate;
         console.log(config.ice_candidate.sdpMid)
-        console.log("\n\n\n\n\n*SHUT UP YOUR MOUTH DIRTY BITCH*\n\n\n\n\n");
+        
         console.log("["+ socket.id + "] relaying ICE candidate to [" + peer_id + "] ", ice_candidate);
 
         if (peer_id in sockets) {
