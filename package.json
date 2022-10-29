@@ -10,6 +10,6 @@
     "express": "^4.17.1",
     "request": "^2.88.2",
     "sdp-transform": "^2.14.0",
-    "socket.io": "^1.7.4"
+    "socket.io": "^4.5.3"
   }
 }
